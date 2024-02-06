@@ -1,9 +1,55 @@
-<script src="https://apis.google.com/js/platform.js" async defer></script>
-<div class="g-signin2" data-onsuccess="onSignIn"></div>
-function onSignIn(googleUser) {
-  var profile = googleUser.getBasicProfile();
-  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  console.log('Name: ' + profile.getName());
-  console.log('Image URL: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-}
+ <script type="text/javascript">
+        function login() 
+        {
+          var myParams = {
+            'clientid' : 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+            'cookiepolicy' : 'single_host_origin',
+            'callback' : 'loginCallback',
+            'approvalprompt':'force',
+            'scope' : 'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.profile.emails.read'
+          };
+          gapi.auth.signIn(myParams);
+        }
+
+        function loginCallback(result)
+        {
+            if(result['status']['signed_in'])
+            {
+                var request = gapi.client.plus.people.get(
+                {
+                    'userId': 'me'
+                });
+                request.execute(function (resp)
+                {
+                    /* console.log(resp);
+                    console.log(resp['id']); */
+                    var email = '';
+                    if(resp['emails'])
+                    {
+                        for(i = 0; i < resp['emails'].length; i++)
+                        {
+                            if(resp['emails'][i]['type'] == 'account')
+                            {
+                                email = resp['emails'][i]['value'];//here is required email id
+                            }
+                        }
+                    }
+                   var usersname = resp['displayName'];//required name
+                });
+            }
+        }
+        function onLoadCallback()
+        {
+            gapi.client.setApiKey('YOUR_API_KEY');
+            gapi.client.load('plus', 'v1',function(){});
+        }
+
+            </script>
+
+        <script type="text/javascript">
+              (function() {
+               var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+               po.src = 'https://apis.google.com/js/client.js?onload=onLoadCallback';
+               var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+             })();
+        </script>
